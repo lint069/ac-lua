@@ -1,8 +1,7 @@
---[[
-    - log file?
-]]
+-- (-ꞈ-マ
 
 local colors = require 'colors'
+local utf8 = require 'utf8'
 
 --#region Tables
 
@@ -14,10 +13,47 @@ local log = {
 
 --#endregion
 
---#region Helper Function
+--#region Helper functions
 
-local function drawBlock()
-    
+---@param icon string|ui.Icons
+---@param iconPadding number
+---@param title string
+---@param titleFontSize integer
+---@param details? string
+---@param detailsFontSize? integer
+local function drawBlock(icon, iconPadding, title, titleFontSize, details, detailsFontSize)
+    if title ~= '' then
+        ui.offsetCursorY(40)
+        ui.dummy(vec2(64, 64))
+
+        local r1, r2 = ui.itemRect()
+        ui.drawIcon(icon, r1 + iconPadding, r2 - iconPadding)
+
+        ui.sameLine(0, 12)
+        ui.dwriteText(title, titleFontSize, colors.statusText)
+
+        if details then
+			ui.offsetCursorX(64 + 12)
+			ui.offsetCursorY(-38)
+
+            ui.dwriteTextWrapped(details, detailsFontSize, colors.detailsText)
+        end
+    end
+end
+
+---Shortens a string and appends ...
+---@param name string
+---@param fontSize integer
+---@param maxLength number
+---@return string newName
+local function truncateName(name, fontSize, maxLength)
+    local nameLength = ui.measureDWriteText(name, fontSize).x
+
+    if nameLength > maxLength then
+        name = utf8.sub(name, 1, math.floor(utf8.len(name) * maxLength / nameLength)) .. '...'
+    end
+
+    return name
 end
 
 --#endregion
@@ -81,12 +117,43 @@ end
 
 local function drawProgressBar()
     local windowSize = ui.windowSize()
-    ui.drawRectFilled(vec2(0, 0), vec2(windowSize.x * loading.progress(), windowSize.y), colors.progressBarForeground)
+    local progress = loading.progress()
+
+    if loading.progress() > 0.9 then
+        progress = 1
+    end
+
+    ui.drawRectFilled(vec2(0, 0), vec2(windowSize.x * progress, windowSize.y), colors.progressBarForeground)
 end
 
 local function drawVersions()
     local windowSize = ui.windowSize()
     ui.dwriteDrawText(loading.version(), 12, vec2(10, windowSize.y - 24), colors.versionText)
+end
+
+local function drawSessionInfo()
+    local groupWidth = 500
+    local padding = 35
+
+    ui.setCursor(vec2((ui.windowWidth() - groupWidth) - padding, -15))
+    ui.beginGroup(groupWidth)
+    using(function()
+        local titleFontSize = 16
+
+        local title, details = loading.warning()
+        if title then
+            drawBlock(ui.Icons.Warning, 20, 'Warning:' .. title, titleFontSize, details, 12)
+        end
+
+        local carName = loading.carName()
+        local trackName = loading.trackName()
+        carName = truncateName(carName, titleFontSize, (groupWidth - 100))
+        trackName = truncateName(trackName, titleFontSize, (groupWidth - 100))
+
+        -- replacing <br> with \n because of srp
+        drawBlock('splashscreen::badge', 6, carName, titleFontSize, table.concat(table.map(loading.carHints(), function(item) return '- %s' % item end), '\n'), 12)
+        drawBlock('splashscreen::track', 6, trackName, titleFontSize, table.concat(table.map(loading.trackHints(), function(item) return '- %s' % item:gsub('<br>', '\n') end), '\n'), 12)
+    end, ui.endGroup)
 end
 
 --#endregion
@@ -98,6 +165,7 @@ function script.update()
     drawProgressBar()
     drawDebugText()
     drawVersions()
+    drawSessionInfo()
 end
 
 --#endregion
