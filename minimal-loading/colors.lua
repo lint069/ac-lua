@@ -6,5 +6,6 @@ colors.progressBarForeground = rgbm(1, 1, 1, 0.05)
 
 colors.statusText = rgbm(0.85, 0.85, 0.85, 1)
 colors.detailsText = rgbm(0.65, 0.65, 0.65, 1)
+colors.versionText = rgbm(0.55, 0.55, 0.55, 1)
 
 return colors
