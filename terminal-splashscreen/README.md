@@ -6,7 +6,12 @@ My personal spec loading screen extension.
 
 ## Colorscheme options
 
-I *am* taking theme suggestions.
+### `random`
+Having a hard time choosing a theme?
+Let `math.random()` decide colors for you!
+
+### `custom`
+Configure your own colors to suit your needs.
 
 ### `default`  
 <img width="700" alt="default" src="https://github.com/user-attachments/assets/8ffc1857-69a9-4de9-8121-39dfa56aca92" />
