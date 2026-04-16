@@ -4,38 +4,75 @@
 
 My personal spec loading screen extension.
 
-## Colorscheme options
+## Acknowledgements
+- Ilja - providing opportunities
+- cris - testing and feedback
 
-### `random`
-Having a hard time choosing a theme?
-Let `math.random()` decide colors for you!
+## Colorscheme Options
 
 ### `custom`
-Configure your own colors to suit your needs.
+Define custom colors to suit your needs.
 
-### `default`  
-<img width="700" alt="default" src="https://github.com/user-attachments/assets/8ffc1857-69a9-4de9-8121-39dfa56aca92" />
+### `random`
+Having a hard time choosing a theme?  
+Let `math.random()` decide colors for you!
 
-### `cattpuccin_macchiato`  
-<img width="700" alt="cattpuccin_macchiato" src="https://github.com/user-attachments/assets/eb1b581d-49ca-4f65-af9e-256f77e739e7" />
+### `arch`
+<img width="1920" height="1080" alt="arch" src="https://github.com/user-attachments/assets/8538d637-81fd-4f59-847a-ba21426f3c39" />
 
-### `cattpuccin_mocha`  
-<img width="700" alt="cattpuccin_mocha" src="https://github.com/user-attachments/assets/71e1dde5-9e4a-427e-96d8-6806b7dc411e" />
+### `ayu_mirage`
+<img width="1920" height="1080" alt="ayu_mirage" src="https://github.com/user-attachments/assets/8725432f-9785-4ec9-baf8-11a1db4ee76a" />
 
-### `cattpuccin_frappe`  
-<img width="700" alt="cattpuccin_frappe" src="https://github.com/user-attachments/assets/dd893f08-44a3-4ff0-92fb-db4580cdfbfe" />
+### `catppuccin_frappe`
+<img width="1920" height="1080" alt="catppuccin_frappe" src="https://github.com/user-attachments/assets/cb95f247-9ba4-469b-9492-3d5b1ff38b50" />
 
-### `ayu_mirage`  
-<img width="700" alt="ayu_mirage" src="https://github.com/user-attachments/assets/a3ec0368-49e9-4e31-8ffb-1cd9241e50d5" />
+### `catppuccin_macchiato`
+<img width="1920" height="1080" alt="catppuccin_macchiato" src="https://github.com/user-attachments/assets/15dee13b-f664-4008-b4a6-88e9533b5016" />
 
-### `nord`  
-<img width="700" alt="nord" src="https://github.com/user-attachments/assets/a53b6cc1-a463-4499-aad5-9b08c9b223b0" />
+### `catppuccin_mocha`
+<img width="1920" height="1080" alt="catppuccin_mocha" src="https://github.com/user-attachments/assets/c6405895-7b58-40c6-b3d0-334d080ed7d9" />
 
-### `arch`  
-<img width="700" alt="arch" src="https://github.com/user-attachments/assets/93b3f375-927f-4f45-bf21-0ca9ffff2ab8" />
+### `cherry_blossom`
+<img width="1920" height="1080" alt="cherry_blossom" src="https://github.com/user-attachments/assets/5c5f0fef-5914-4463-bea7-3c7ccd923531" />
 
-### `matrix`  
-<img width="700" alt="matrix" src="https://github.com/user-attachments/assets/4b919551-e606-4ddd-88f2-440862bf242f" />
+### `comfy`
+<img width="1920" height="1080" alt="comfy" src="https://github.com/user-attachments/assets/1045114a-ae78-4e2a-a876-175c29bd910d" />
 
-### `kanagawa_dragon`  
-<img width="700" alt="kanagawa_dragon" src="https://github.com/user-attachments/assets/2ccc9f37-855b-4532-8f37-e0417d55029a" />
+### `default`
+<img width="1920" height="1080" alt="default" src="https://github.com/user-attachments/assets/5b9a5fe0-0b4f-4d9e-afd1-2488bc6df162" />
+
+### `drowning`
+<img width="1920" height="1080" alt="drowning" src="https://github.com/user-attachments/assets/c08fcba9-4eb7-47a5-ba71-c481187ac94c" />
+
+### `iceberg_dark`
+<img width="1920" height="1080" alt="iceberg_dark" src="https://github.com/user-attachments/assets/140d7f59-36cc-4a7c-b00e-d38f12eb2521" />
+
+### `iceberg_light`
+<img width="1920" height="1080" alt="iceberg_light" src="https://github.com/user-attachments/assets/fd79ce15-8ac5-4c33-b1f8-d146eb31b7b9" />
+
+### `kanagawa_dragon`
+<img width="1920" height="1080" alt="kanagawa_dragon" src="https://github.com/user-attachments/assets/41b8daf1-c49a-41a5-a8bb-17728f21c567" />
+
+### `matrix`
+<img width="1920" height="1080" alt="matrix" src="https://github.com/user-attachments/assets/064eee5c-c296-42a0-a19c-94a6142eccee" />
+
+### `midnight`
+<img width="1920" height="1080" alt="midnight" src="https://github.com/user-attachments/assets/31f5dd3b-686d-4a80-91fd-bbfa42d0a00a" />
+
+### `moonlight`
+<img width="1920" height="1080" alt="moonlight" src="https://github.com/user-attachments/assets/f3941489-d6b3-4ab2-a70b-2e8ee4d12fe0" />
+
+### `nord`
+<img width="1920" height="1080" alt="nord" src="https://github.com/user-attachments/assets/082026fa-e730-446e-b864-bd9d71f6d7ba" />
+
+### `norse`
+<img width="1920" height="1080" alt="norse" src="https://github.com/user-attachments/assets/4650140f-55b3-4505-90ea-132cd7c52461" />
+
+### `peach_blossom`
+<img width="1920" height="1080" alt="peach_blossom" src="https://github.com/user-attachments/assets/ae737a37-cb00-480d-a27c-77e3cbc8adcf" />
+
+### `shadow`
+<img width="1920" height="1080" alt="shadow" src="https://github.com/user-attachments/assets/fd9ab67b-d1c3-440d-96b1-669ebe1e3500" />
+
+### `sunset`
+<img width="1920" height="1080" alt="sunset" src="https://github.com/user-attachments/assets/0a0d3d8e-7d4e-4284-aeba-aeedfa147f35" />
