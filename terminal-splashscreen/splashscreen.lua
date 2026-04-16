@@ -1,7 +1,6 @@
---TODO: ASCII ART
--- maybe spinning ascii art. loading spinner ascii art. spinning skull. custom ascii art via .txt file.
-
 local colors = require 'colors'
+local configINI = ac.INIConfig.load('config.ini', ac.INIFormat.Extended)
+local colorscheme = configINI:get('style', 'colorscheme', 'default')
 
 --#region Tables
 
@@ -15,14 +14,20 @@ local font = {
     regular = ui.DWriteFont('Cousine Nerd Font Mono', './assets/CousineNerdFontMono-Regular.ttf')
 }
 
-local Theme = ac.INIConfig.load('config.ini', ac.INIFormat.Extended):get('style', 'colorscheme', 'default')
-
 --#endregion
+
+---@param value number @value to be scaled
+---@return integer
+local function scale(value)
+    local scaleFactor = ui.windowSize().x / 1920
+
+    return math.floor(value * scaleFactor)
+end
 
 --#region Drawing Functions
 
 local function drawBackground()
-    ui.drawRectFilled(vec2(0, 0), ui.windowSize(), colors[Theme].background)
+    ui.drawRectFilled(vec2(0, 0), ui.windowSize(), colors[colorscheme].background)
 end
 
 local function drawDebugText()
@@ -59,13 +64,13 @@ local function drawDebugText()
     end)
 
     ui.pushDWriteFont(font.regular)
-    local detailsFontSize = 12
+    local detailsFontSize = scale(12)
     local maxLines = math.floor((windowSize.y - 75) / ui.measureDWriteText('A', detailsFontSize).y)
     local startIndex = math.max(1, #log.lines - maxLines)
     local cutString = table.concat(log.lines, '\n', startIndex, #log.lines)
 
-    ui.setCursor(vec2(20, 20))
-    ui.dwriteText(cutString, detailsFontSize, colors[Theme].text)
+    ui.setCursor(vec2(scale(20), scale(20)))
+    ui.dwriteText(cutString, detailsFontSize, colors[colorscheme].text)
     ui.popDWriteFont()
 
     ui.drawImage(loadingCanvas, vec2(0, 0), loadingCanvas:size())
@@ -75,21 +80,23 @@ end
 ---@param fillChar string @Character that fills the progress bar.
 local function drawProgressBar(emptyChar, fillChar)
     local progress = loading.progress()
+
+    local spinnerChars = {'-', '\\', '|', '/'}
+    local spinIndex = (math.floor(os.preciseClock() * 6) % #spinnerChars) + 1
+    local spinChar = progress < 0.9 and spinnerChars[spinIndex] or '#'
+
     local total = 42
     local filled = progress > 0.9 and total or math.floor(progress * total)
-    local bar = '[' .. fillChar:rep(filled) .. emptyChar:rep(total - filled) .. ']'
-    local percentage = string.format(' %.2f%%', progress * 100)
-
-    if progress > 0.9 then
-        percentage = ' 100%'
-    end
+    local emptyCount = math.max(0, total - filled - 1)
+    local bar = '[' .. fillChar:rep(filled) .. spinChar .. emptyChar:rep(emptyCount) .. ']'
+    local percentage = progress > 0.99 and ' 100%' or string.format(' %.2f%%', progress * 100)
 
     ui.pushDWriteFont(font.regular)
 
-    local fontSize = 14
-    local padding = 20
+    local fontSize = scale(14)
+    local padding = scale(20)
     local textHeight = ui.measureDWriteText('A', fontSize).y
-    ui.dwriteDrawText(bar .. percentage, fontSize, vec2(25, (ui.windowSize().y - textHeight) - padding), colors[Theme].text)
+    ui.dwriteDrawText(bar .. percentage, fontSize, vec2(scale(25), (ui.windowSize().y - textHeight) - padding), colors[colorscheme].text)
 
     ui.popDWriteFont()
 end
@@ -97,23 +104,51 @@ end
 local function drawVersions()
     local windowSize = ui.windowSize()
 
-    local fontSize = 12
-    local padding = 15
+    local fontSize = scale(12)
+    local padding = scale(15)
     local version = loading.version()
 
     local textSize = ui.measureDWriteText(version, fontSize)
-    ui.dwriteDrawText(version, fontSize, vec2((windowSize.x - textSize.x) - padding, (windowSize.y - textSize.y) - padding), colors[Theme].versionText)
+    ui.dwriteDrawText(version, fontSize, vec2((windowSize.x - textSize.x) - padding, (windowSize.y - textSize.y) - padding), colors[colorscheme].versionText)
+end
+
+local function drawAscii()
+    local asciiFile = __dirname .. '/' .. configINI:get('ascii', 'path', '')
+
+    local file, err = io.open(asciiFile, 'r')
+    if not file then
+        ac.log('Error: ', err)
+        return
+    end
+
+    local asciiArt = file:read('*a')
+    file:close()
+
+    ui.pushDWriteFont(font.regular)
+    local windowSize = ui.windowSize()
+    local fontSize = scale(12)
+    local asciiSize = ui.measureDWriteText(asciiArt, fontSize)
+
+    -- ((P1 + P2) / 2) - (imagesize.x / 2)
+    ui.dwriteDrawText(asciiArt, fontSize, vec2((((windowSize.x / 3) + windowSize.x) / 2) - (asciiSize.x / 2), (windowSize.y / 2) - (asciiSize.y / 2)), colors[colorscheme].accent)
+    ui.popDWriteFont()
 end
 
 --#endregion
 
 --#region Main
 
+local asciiEnabled = configINI:get('ascii', 'enabled', 'false')
+
 function script.update()
     drawBackground()
     drawDebugText()
     drawVersions()
     drawProgressBar('.', '#')
+
+    if asciiEnabled == 'true' then
+        drawAscii()
+    end
 end
 
 --#endregion
