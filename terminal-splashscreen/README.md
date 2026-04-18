@@ -5,6 +5,7 @@
 My personal spec loading screen extension.
 
 ## Acknowledgements
+
 - Ilja - providing opportunities
 - cris - testing and feedback
 
@@ -14,8 +15,7 @@ My personal spec loading screen extension.
 Define custom colors to suit your needs.
 
 ### `random`
-Having a hard time choosing a theme?  
-Let `math.random()` decide colors for you!
+Let `math.random()` decide colors for you.
 
 ### `arch`
 <img width="1920" height="1080" alt="arch" src="https://github.com/user-attachments/assets/8538d637-81fd-4f59-847a-ba21426f3c39" />

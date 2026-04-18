@@ -130,8 +130,11 @@ local function drawAscii()
     local asciiSize = ui.measureDWriteText(asciiArt, fontSize)
 
     -- ((P1 + P2) / 2) - (imagesize.x / 2)
-    ui.dwriteDrawText(asciiArt, fontSize, vec2((((windowSize.x / 3) + windowSize.x) / 2) - (asciiSize.x / 2), (windowSize.y / 2) - (asciiSize.y / 2)), colors[colorscheme].accent)
+    ui.dwriteDrawText(asciiArt, fontSize, vec2((((windowSize.x / 2.7) + (windowSize.x - 15)) / 2) - (asciiSize.x / 2), (windowSize.y / 2) - (asciiSize.y / 2)), colors[colorscheme].accent)
     ui.popDWriteFont()
+
+    -- ui.drawCircleFilled(vec2(windowSize.x / 2.7, windowSize.y / 2), 3, rgbm(1, 0, 0, 1))
+    -- ui.drawCircleFilled(vec2((windowSize.x - 15), windowSize.y / 2), 3, rgbm(1, 0, 0, 1))
 end
 
 --#endregion
