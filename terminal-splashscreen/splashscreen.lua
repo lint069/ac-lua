@@ -16,6 +16,8 @@ local font = {
 
 --#endregion
 
+--#region Helper Functions
+
 ---@param value number @value to be scaled
 ---@return integer
 local function scale(value)
@@ -23,6 +25,24 @@ local function scale(value)
 
     return math.floor(value * scaleFactor)
 end
+
+---@return string
+local function loadAscii()
+    local asciiFile = __dirname .. '/' .. configINI:get('ascii', 'path', '')
+
+    local file, err = io.open(asciiFile, 'r')
+    if not file then
+        ac.log('Error: ', err)
+        return ('Error: ' .. err)
+    end
+
+    local asciiArt = file:read('*a')
+    file:close()
+
+    return asciiArt
+end
+
+--#endregion
 
 --#region Drawing Functions
 
@@ -81,6 +101,7 @@ end
 local function drawProgressBar(emptyChar, fillChar)
     local progress = loading.progress()
 
+    -- https://gist.github.com/asika32764/19956edcc5e893b2cbe3768e91590cf1
     local spinnerChars = {'-', '\\', '|', '/'}
     local spinIndex = (math.floor(os.preciseClock() * 6) % #spinnerChars) + 1
     local spinChar = progress < 0.9 and spinnerChars[spinIndex] or '#'
@@ -112,18 +133,8 @@ local function drawVersions()
     ui.dwriteDrawText(version, fontSize, vec2((windowSize.x - textSize.x) - padding, (windowSize.y - textSize.y) - padding), colors[colorscheme].versionText)
 end
 
+local asciiArt = loadAscii()
 local function drawAscii()
-    local asciiFile = __dirname .. '/' .. configINI:get('ascii', 'path', '')
-
-    local file, err = io.open(asciiFile, 'r')
-    if not file then
-        ac.log('Error: ', err)
-        return
-    end
-
-    local asciiArt = file:read('*a')
-    file:close()
-
     ui.pushDWriteFont(font.regular)
     local windowSize = ui.windowSize()
     local fontSize = scale(12)
