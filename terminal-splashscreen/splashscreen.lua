@@ -110,7 +110,7 @@ local function drawProgressBar(emptyChar, fillChar)
     local filled = progress > 0.9 and total or math.floor(progress * total)
     local emptyCount = math.max(0, total - filled - 1)
     local bar = '[' .. fillChar:rep(filled) .. spinChar .. emptyChar:rep(emptyCount) .. ']'
-    local percentage = progress > 0.99 and ' 100%' or string.format(' %.2f%%', progress * 100)
+    local percentage = progress > 0.9 and ' 100%' or string.format(' %.2f%%', progress * 100)
 
     ui.pushDWriteFont(font.regular)
 
