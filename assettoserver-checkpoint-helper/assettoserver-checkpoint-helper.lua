@@ -14,14 +14,6 @@ local settings = ac.storage {
 
 --#endregion
 
---#region Helper Functions
-
-local function getForwardVector()
-	return car.transform.look:clone():normalize()
-end
-
---#endregion
-
 --#region Main Window
 
 function script.windowMain()
@@ -68,17 +60,17 @@ function script.update()
 	if not lastCheckpointPosition then
 		lastCheckpointPosition = car.position:clone()
 		table.insert(checkpoints, {
-			position = car.position:clone(),
-			forward = car.position + getForwardVector() * 3.0,
-		})
+      		position = car.position:clone(),
+      		forward = car.position + car.transform.look * 3.0
+    	})
 	end
 
 	local distanceSinceLast = car.position:distance(lastCheckpointPosition)
 	if distanceSinceLast >= settings.checkpointInterval then
 		table.insert(checkpoints, {
-			position = car.position:clone(),
-			forward = car.position + getForwardVector() * 3.0,
-		})
+      		position = car.position:clone(),
+      		forward = car.position + car.transform.look * 3.0
+    	})
 		lastCheckpointPosition:set(car.position)
 	end
 end
@@ -88,11 +80,23 @@ end
 --#region Debug arrows
 
 render.on('main.root.transparent', function()
-	if settings.drawDebugArrows then
-		for _, checkpoint in ipairs(checkpoints) do
-			render.debugArrow(checkpoint.position, checkpoint.forward, 0.1, rgbm(1, 0, 1, 1))
-		end
+	if not settings.drawDebugArrows then
+		return
 	end
+
+	for _, checkpoint in ipairs(checkpoints) do
+		render.debugArrow(checkpoint.position, checkpoint.forward, 0.1, rgbm(1, 0, 1, 1))
+	end
+
+	--[[linear draw between 2 set checkpoints]]
+	for i = 1, #checkpoints - 1 do
+    	render.debugLine(checkpoints[i].position, checkpoints[i + 1].position, rgbm(0, 0.6, 1, 0.5))
+  	end
+
+	--[[linear draw between last set checkpoint and current car position]]
+	if car and lastCheckpointPosition then
+    	render.debugLine(lastCheckpointPosition, car.position, rgbm(1, 0.8, 0, 0.7))
+  	end	
 end)
 
 --#endregion
