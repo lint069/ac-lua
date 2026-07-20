@@ -58,11 +58,13 @@ function script.windowMain()
 		ui.pushStyleColor(ui.StyleColor.ButtonHovered, colors.green)
 	end
 
-	if ui.button(isRecording and 'Stop Recording' or 'Start Recording', vec2(ui.availableSpaceX(), 30)) then
-		isRecording = not isRecording
-	end
+	local clicked = ui.button(isRecording and 'Stop Recording' or 'Start Recording', vec2(ui.availableSpaceX(), 30))
 
 	ui.popStyleColor(isRecording and 2 or 1)
+
+	if clicked then
+    	isRecording = not isRecording
+  	end
 
 	if ui.button('Set Point', vec2(ui.availableSpaceX() - 130, 30)) then
     	createCheckpoint()
