@@ -3,15 +3,16 @@
 local car = ac.getCar(0)
 
 local checkpoints = {}
-local lastCheckpointPosition ---@type vec3|nil
 local isRecording = false
+local setPointBind = ac.ControlButton("checkpoint_helper/set_point", {
+	keyboard = { key = ui.KeyIndex.G }
+})
 
 --#region Settings
 
 local settings = ac.storage {
 	checkpointInterval = 15,
-	drawDebugArrows = true,
-	manualMode = false,
+	drawDebugArrows = true
 }
 
 --#endregion
@@ -27,21 +28,11 @@ local colors = {
 
 --#region Helper Functions
 
-local function getForwardVector()
-	return car.transform.look:clone():normalize()
-end
-
 local function createCheckpoint()
 	table.insert(checkpoints, {
 		position = car.position:clone(),
-		forward = car.position + getForwardVector() * 3.0,
+		forward = car.position + car.transform.look * 3.0,
 	})
-
-	if lastCheckpointPosition then
-		lastCheckpointPosition:set(car.position)
-	else
-		lastCheckpointPosition = car.position:clone()
-	end
 end
 
 --#endregion
@@ -49,41 +40,41 @@ end
 --#region Main Window
 
 function script.windowMain()
-	if ui.checkbox('Draw Debug Arrows', settings.drawDebugArrows) then settings.drawDebugArrows = not settings.drawDebugArrows end
+	if ui.checkbox('Draw Debug Arrows', settings.drawDebugArrows) then
+		settings.drawDebugArrows = not settings.drawDebugArrows
+	end
 
 	ui.offsetCursorY(5)
 	ui.separator()
 	ui.offsetCursorY(5)
 
-	if ui.checkbox('Manual Mode', settings.manualMode) then settings.manualMode = not settings.manualMode end
+	ui.setNextItemWidth(ui.availableSpaceX())
+	settings.checkpointInterval = ui.slider('##checkpointInterval', settings.checkpointInterval, 1, 500, 'Checkpoint Interval: %.0fm')
 
-	if not settings.manualMode then
-		settings.checkpointInterval = ui.slider('##checkpointInterval', settings.checkpointInterval, 1, 500, 'Checkpoint Interval: %.0fm')
-
-		if isRecording then
-			ui.pushStyleColor(ui.StyleColor.Button, colors.red)
-			ui.pushStyleColor(ui.StyleColor.ButtonHovered, colors.red:clone():add(rgbm(0.2, 0.1, 0.1, 0)))
-		else
-			ui.pushStyleColor(ui.StyleColor.ButtonHovered, colors.green)
-		end
-
-		if ui.button(isRecording and 'Stop Recording' or 'Start Recording', vec2(ui.availableSpaceX(), 30)) then
-			isRecording = not isRecording
-		end
-
-		ui.popStyleColor(isRecording and 2 or 1)
+	if isRecording then
+		ui.pushStyleColor(ui.StyleColor.Button, colors.red)
+		ui.pushStyleColor(ui.StyleColor.ButtonHovered, colors.red:clone():add(rgbm(0.2, 0.1, 0.1, 0)))
 	else
-		if ui.button('Set Point', vec2(ui.availableSpaceX(), 30)) then
-			createCheckpoint()
-		end
+		ui.pushStyleColor(ui.StyleColor.ButtonHovered, colors.green)
 	end
+
+	if ui.button(isRecording and 'Stop Recording' or 'Start Recording', vec2(ui.availableSpaceX(), 30)) then
+		isRecording = not isRecording
+	end
+
+	ui.popStyleColor(isRecording and 2 or 1)
+
+	if ui.button('Set Point', vec2(ui.availableSpaceX() - 130, 30)) then
+    	createCheckpoint()
+  	end
+	ui.sameLine(0, 4)
+  	setPointBind:control(vec2(126, 30))
 
 	ui.pushStyleColor(ui.StyleColor.ButtonHovered, colors.red)
 	ui.pushStyleColor(ui.StyleColor.ButtonActive, rgbm(1, 0.1, 0.1, 1))
 
 	if ui.button('Clear All Checkpoints', vec2(ui.availableSpaceX() / 2, 30)) then
 		checkpoints = {}
-		lastCheckpointPosition = nil
 		ac.restartApp() -- clear ac.debug()
 	end
 
@@ -139,8 +130,12 @@ end
 --#region Update
 
 function script.update()
-	if not settings.manualMode and isRecording then
-		if not lastCheckpointPosition or car.position:distance(lastCheckpointPosition) >= settings.checkpointInterval then
+	if setPointBind:pressed() then
+    	createCheckpoint()
+  	end
+
+	if isRecording then
+		if #checkpoints == 0 or car.position:distance(checkpoints[#checkpoints].position) >= settings.checkpointInterval then
 			createCheckpoint()
 		end
 	end
