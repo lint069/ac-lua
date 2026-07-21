@@ -5,6 +5,9 @@ local car = ac.getCar(0)
 local checkpoints = {}
 local isRecording = false
 
+local savesDir = ac.getFolder(ac.FolderID.ScriptOrigin) .. '/saves'
+local currentFilePath = nil
+
 --#region Settings
 
 local settings = ac.storage {
@@ -42,6 +45,30 @@ local binds = {
 --#endregion
 
 --#region Helper Functions
+
+local function serializeCheckpoints()
+  local out = {}
+  for _, checkpoint in ipairs(checkpoints) do
+    table.insert(out, {
+      position = checkpoint.position:table(),
+      forward = checkpoint.forward:table()
+    })
+  end
+  return JSON.stringify(out)
+end
+
+local function deserializeCheckpoints(jsonString)
+  local rawData = JSON.parse(jsonString)
+  if not rawData or type(rawData) ~= 'table' then return false end
+  table.clear(checkpoints)
+  for _, checkpoint in ipairs(rawData) do
+    table.insert(checkpoints, {
+      position = vec3(checkpoint.position[1], checkpoint.position[2], checkpoint.position[3]),
+      forward = vec3(checkpoint.forward[1], checkpoint.forward[2], checkpoint.forward[3])
+    })
+  end
+  return true
+end
 
 local function createCheckpoint()
     table.insert(checkpoints, {
@@ -118,9 +145,9 @@ function script.windowMain()
                 createCheckpoint()
             end
 
-            local buttonWidth = (ui.availableSpaceX() - 8) / 3
+            local buttonWidth_2 = (ui.availableSpaceX() - 4) / 2
 
-            if ui.button('Undo Last', vec2(buttonWidth, 30)) then
+            if ui.button('Undo Last', vec2(buttonWidth_2, 30)) then
                 if #checkpoints > 0 then
                     table.remove(checkpoints)
                 end
@@ -132,7 +159,7 @@ function script.windowMain()
             ui.pushStyleColor(ui.StyleColor.ButtonHovered, colors.red:clone():add(rgbm(0.2, 0.1, 0.1, 0)))
             ui.pushStyleColor(ui.StyleColor.ButtonActive, rgbm(1, 0.1, 0.1, 1))
 
-            if ui.button('Clear All', vec2(buttonWidth, 30)) then
+            if ui.button('Clear All', vec2(buttonWidth_2, 30)) then
                 ui.modalPopup(
                     'Confirm Clear',
                     'Are you sure you want to clear all checkpoints?',
@@ -146,39 +173,78 @@ function script.windowMain()
                             ac.restartApp() -- clear ac.debug()
                         end
                     end,
-                    true
-                )
+                true)
             end
 
             ui.popStyleColor(3)
+
+            local buttonWidth_3 =  (ui.availableSpaceX() - 8) / 3
+
+            --[[load]]
+            if ui.button('Load', vec2(buttonWidth_3, 30)) then
+                io.createDir(savesDir)
+                os.openFileDialog({
+                    defaultFolder = savesDir,
+                    fileTypes = {{name = 'JSON Save File', mask = '*.json'}},
+                    addAllFilesFileType = true,
+                    flags = bit.bor(os.DialogFlags.PathMustExist, os.DialogFlags.FileMustExist)
+                }, function (err, filename)
+                    if err or not filename then return end
+                    local content = io.load(filename)
+                    if content then
+                        if deserializeCheckpoints(content) then
+                            currentFilePath = filename
+                        end
+                    end
+                end)
+            end
+
             ui.sameLine(0, 4)
 
-            if ui.button('Export', vec2(ui.availableSpaceX(), 30)) then
+            --[[save]]
+            if ui.button('Save', vec2(buttonWidth_3, 30)) then
+                ui.modalPopup(
+                    'Confirm Save',
+                    'Are you sure you want to overwrite your saved checkpoints?',
+                    'Save',
+                    'Cancel',
+                    ui.Icons.Save,
+                    ui.Icons.Cancel,
+                    function(confirmed)
+                        if confirmed then
+                        io.createDir(savesDir)
+                        if not currentFilePath then
+                            local hash = string.sub(bit.tohex(math.randomKey()), 1, 6)
+                            currentFilePath = string.format('%s/%s_%s.json', savesDir, ac.getTrackFullID('_'), hash)
+                        end
+                        io.save(currentFilePath, serializeCheckpoints())
+                        ui.toast(ui.Icons.Confirm, 'Checkpoints saved successfully!')
+                        end
+                    end,
+                true)
+            end
+
+            ui.sameLine(0, 4)
+
+            --[[save as]]
+            if ui.button('Save As', vec2(buttonWidth_3, 30)) then
+                io.createDir(savesDir)
+                local defaultName
+                if currentFilePath then
+                    defaultName = io.getFileName(currentFilePath)
+                else
+                    local hash = string.sub(bit.tohex(math.randomKey()), 1, 6)
+                    defaultName = string.format('%s_%s.json', ac.getTrackFullID('_'), hash)
+                end
                 os.saveFileDialog({
-                    defaultFolder = ac.getFolder(ac.FolderID.Root),
-                    fileName = 'checkpoints.txt',
-                    fileTypes = { { name = 'Text File', mask = '*.txt' } },
+                    defaultFolder = savesDir,
+                    fileName = defaultName,
+                    fileTypes = {{name = 'JSON Save File', mask = '*.json'}},
                     addAllFilesFileType = true,
-                    flags = bit.bor(
-                        os.DialogFlags.PathMustExist,
-                        os.DialogFlags.OverwritePrompt,
-                        os.DialogFlags.NoReadonlyReturn
-                    )
-                }, function(err, filename)
+                    flags = bit.bor(os.DialogFlags.PathMustExist, os.DialogFlags.OverwritePrompt, os.DialogFlags.NoReadonlyReturn)
+                }, function (err, filename)
                     if err or not filename then return end
-
-                    local logFile = io.open(filename, 'w')
-                    if not logFile then return end
-
-                    for _, checkpoint in ipairs(checkpoints) do
-                        logFile:write(string.format(
-                            '- Position: {X: %.2f, Y: %.2f, Z: %.2f}\n  Forward: {X: %.2f, Y: %.2f, Z: %.2f}\n',
-                            checkpoint.position.x, checkpoint.position.y, checkpoint.position.z,
-                            checkpoint.forward.x, checkpoint.forward.y, checkpoint.forward.z
-                        ))
-                    end
-
-                    logFile:close()
+                    io.save(filename, serializeCheckpoints())
                 end)
             end
 
